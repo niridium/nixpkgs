@@ -19539,6 +19539,12 @@
     github = "nipeharefa";
     githubId = 12620257;
   };
+  niridium = {
+    name = "niridium";
+    email = "niridium@tuta.io";
+    github = "niridium";
+    githubId = 213502641;
+  };
   NIS = {
     name = "NSC IT Solutions";
     github = "dev-nis";
