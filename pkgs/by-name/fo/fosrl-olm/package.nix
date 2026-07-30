@@ -2,27 +2,33 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
+  versionCheckHook,
 }:
 
 buildGoModule (finalAttrs: {
   pname = "olm";
-  version = "1.4.4";
+  version = "1.8.0";
 
   src = fetchFromGitHub {
     owner = "fosrl";
     repo = "olm";
     tag = finalAttrs.version;
-    hash = "sha256-G2kYzYg4RUFHgW9z44PcQPK85FsD5SVBefpzBKIwUw0=";
+    hash = "sha256-WJBdeAJdsu1hgAlqHpUqJys2blFLEqCLlZJektu7wtk=";
   };
 
-  vendorHash = "sha256-D93SPwXAeoTLCbScjyH8AB9TJIF2b/UbLNMIQYi+B+c=";
+  vendorHash = "sha256-7eKAftMOnVBnZhC800fRmOoV+8+Tq+RlSEpVUdZKSlk=";
+
+  nativeInstallCheckInputs = [ versionCheckHook ];
 
   ldflags = [
     "-s"
     "-w"
+    "-X=main.olmVersion=${finalAttrs.version}"
   ];
 
   doInstallCheck = true;
+
+  __structuredAttrs = true;
 
   meta = {
     description = "Tunneling client for Pangolin";

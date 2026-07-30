@@ -9,13 +9,13 @@
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "zuban";
 
-  version = "0.7.0";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = "zubanls";
     repo = "zuban";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-PuD9go5aQJh3qOjWxRX1+43SfHfRcYEulvJ2Mc1lfus=";
+    hash = "sha256-g06iHdbKb/uZkGkbX7fHB0MMDbuYYnGodQAEPvA18KA=";
     fetchSubmodules = true;
   };
 
@@ -26,7 +26,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   buildAndTestSubdir = "crates/zuban";
 
-  cargoHash = "sha256-96hcuvsrtFrQgP2CDLEdssvxXFg9Iy00v1DiJJxkdOU=";
+  cargoHash = "sha256-bfiWuig9ySkbJ/2CL4jGlNYn/YvVClB3Eg0cq8dKi3E=";
 
   nativeInstallCheckInputs = [
     versionCheckHook

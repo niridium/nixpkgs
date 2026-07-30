@@ -4,39 +4,50 @@
   buildGoModule,
   testers,
   gitea-actions-runner,
+  nix-update-script,
 }:
 
 buildGoModule (finalAttrs: {
   pname = "gitea-actions-runner";
-  version = "0.3.1";
+  version = "2.2.0";
 
   src = fetchFromGitea {
     domain = "gitea.com";
     owner = "gitea";
-    repo = "act_runner";
+    repo = "runner";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-D3/vJUQuNAgUWNyfL9QWmByZ9A/F4+pfA6GR0SDcMpQ=";
+    hash = "sha256-aiba7Tdyyy8aDzJq62zOWNkEZE+twIxReW7clbIoVTI=";
   };
 
-  vendorHash = "sha256-XRXoChH2ApQS65xnzeGP4NIUL0RKovLWvVIAnBncT7Y=";
+  vendorHash = "sha256-Zpq/G/SZ959SRUIMGo2votFv4DzB46OmPmZwFoae3gU=";
+
+  # Tests require network access (artifactcache tests try to determine outbound IP)
+  doCheck = false;
 
   ldflags = [
     "-s"
     "-w"
-    "-X gitea.com/gitea/act_runner/internal/pkg/ver.version=v${finalAttrs.version}"
+    "-X gitea.com/gitea/runner/internal/pkg/ver.version=v${finalAttrs.version}"
   ];
 
-  passthru.tests.version = testers.testVersion {
-    package = gitea-actions-runner;
-    version = "v${finalAttrs.version}";
+  postInstall = ''
+    mv "$out/bin/runner" "$out/bin/gitea-runner"
+  '';
+
+  passthru = {
+    tests.version = testers.testVersion {
+      package = gitea-actions-runner;
+      version = "v${finalAttrs.version}";
+    };
+    updateScript = nix-update-script { };
   };
 
   meta = {
-    mainProgram = "act_runner";
-    maintainers = with lib.maintainers; [ techknowlogick ];
-    license = lib.licenses.mit;
-    changelog = "https://gitea.com/gitea/act_runner/releases/tag/v${finalAttrs.version}";
-    homepage = "https://gitea.com/gitea/act_runner";
+    changelog = "https://gitea.com/gitea/runner/releases/tag/v${finalAttrs.version}";
     description = "Runner for Gitea based on act";
+    homepage = "https://gitea.com/gitea/runner";
+    license = lib.licenses.mit;
+    mainProgram = "gitea-runner";
+    maintainers = with lib.maintainers; [ techknowlogick ];
   };
 })

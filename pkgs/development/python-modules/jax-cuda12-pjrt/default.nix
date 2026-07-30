@@ -35,6 +35,7 @@ buildPythonPackage (finalAttrs: {
   pname = "jax-cuda12-pjrt";
   inherit version;
   pyproject = false;
+  __structuredAttrs = true;
 
   src = fetchPypi {
     pname = "jax_cuda12_pjrt";
@@ -50,8 +51,8 @@ buildPythonPackage (finalAttrs: {
       .${stdenv.hostPlatform.system};
     hash =
       {
-        x86_64-linux = "sha256-U2owUpInbFdF77un61dXaEnFp8dzmKOp5h/TG69RAvA=";
-        aarch64-linux = "sha256-VvSifl8ZypFMD0QCU5RpqpLQG/cTNqzQ7Y/dwgqRvI0=";
+        x86_64-linux = "sha256-JC35nJCCeik33xxESYPUB2Fz+YNtwLwdIN+GlgFE81o=";
+        aarch64-linux = "sha256-Z+xZFefklHddXcDXPR4zy3Ske2prsQie73tRfk6HPjM=";
       }
       .${stdenv.hostPlatform.system};
   };

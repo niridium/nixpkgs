@@ -167,7 +167,6 @@ let
   os =
     {
       x86_64-linux = "linux";
-      x86_64-darwin = "macosx";
       aarch64-linux = "linux";
       aarch64-darwin = "macosx";
     }
@@ -177,7 +176,6 @@ let
   arch =
     {
       x86_64-linux = "x64";
-      x86_64-darwin = "x64";
       aarch64-linux = "aarch64";
       aarch64-darwin = "aarch64";
     }
@@ -798,7 +796,7 @@ lib.recurseIntoAttrs rec {
             done
           ''}
 
-          find $ANDROID_SDK_ROOT/${cmdline-tools-package.path}/bin -type f -executable | while read i; do
+          find "$ANDROID_HOME/${cmdline-tools-package.path}/bin" -type f -executable | while read i; do
               ln -s $i $out/bin
           done
 

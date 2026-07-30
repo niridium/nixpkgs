@@ -21,6 +21,7 @@
   pciutils,
   wl-clipboard,
   wtype,
+  which,
   xclip,
   xdotool,
 
@@ -51,16 +52,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "voxtype";
-  version = "0.6.5";
+  version = "0.7.5";
 
   src = fetchFromGitHub {
     owner = "peteonrails";
     repo = "voxtype";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-gY5gP+F3SbCZsG/jaOHnEu291q6akg1M5c4BebRSpvI=";
+    hash = "sha256-zsOG1mBTXN4gdsTb1pUPKXATfhV5ZjgEsIUk07asaGo=";
   };
 
-  cargoHash = "sha256-X6TYlmHjLvsUYlxz4WbzHptKyQZHIBt8u1lLqrS/nz0=";
+  cargoHash = "sha256-YK5xZWPo7KAeWZeuMxNxHA3k6RR/MT2MIfEPcgMND00=";
 
   buildFeatures =
     [ ]
@@ -82,7 +83,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     makeBinaryWrapper
     pkg-config
   ]
-  ++ lib.optional vulkanSupport [
+  ++ lib.optionals vulkanSupport [
     shaderc
     vulkan-headers
     vulkan-loader
@@ -131,6 +132,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
         (lib.makeBinPath (
           [
             libnotify
+            which
           ]
           ++ lib.optionals vulkanSupport [
             pciutils

@@ -12,20 +12,16 @@ let
   # update-script-start: urls
   urls = {
     x86_64-linux = {
-      url = "https://download.jetbrains.com/go/goland-2026.1.tar.gz";
-      hash = "sha256-+TORnDso307j+WwFspoQRZ8IN2TFyy5uUvLyjiNhHiY=";
+      url = "https://download.jetbrains.com/go/goland-2026.2.0.1.tar.gz";
+      hash = "sha256-nT/jmw0WFNwmtWR5be0KBUHJpM48phhYN7oUNOMCrok=";
     };
     aarch64-linux = {
-      url = "https://download.jetbrains.com/go/goland-2026.1-aarch64.tar.gz";
-      hash = "sha256-inAjJw9xzpGjdo4pgoqQwM+ZyEnvLQZggPt4S/LGFxg=";
-    };
-    x86_64-darwin = {
-      url = "https://download.jetbrains.com/go/goland-2026.1.dmg";
-      hash = "sha256-zFAjXSdOaf3C2zQDDriOK9F2xOxGTrAyacVHUh0Sqck=";
+      url = "https://download.jetbrains.com/go/goland-2026.2.0.1-aarch64.tar.gz";
+      hash = "sha256-t6vH7fxtysgprc1EHH3XiIdHD6oCMcY/a1hu5aiYMxE=";
     };
     aarch64-darwin = {
-      url = "https://download.jetbrains.com/go/goland-2026.1-aarch64.dmg";
-      hash = "sha256-Zo48RMtVUweV541ImYxtQTBp4L4ZhyTDxFFwK+YyrZk=";
+      url = "https://download.jetbrains.com/go/goland-2026.2.0.1-aarch64.dmg";
+      hash = "sha256-zrQAsOOR4OhAXnebwnRk3da4h4Gi0t8f+SIaEAiwM0Q=";
     };
   };
   # update-script-end: urls
@@ -39,8 +35,8 @@ in
   product = "Goland";
 
   # update-script-start: version
-  version = "2026.1";
-  buildNumber = "261.22158.291";
+  version = "2026.2.0.1";
+  buildNumber = "262.8665.336";
   # update-script-end: version
 
   src = fetchurl (urls.${system} or (throw "Unsupported system: ${system}"));

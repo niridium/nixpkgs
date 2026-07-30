@@ -7,12 +7,12 @@
 }:
 
 let
-  version = "0.102.2";
+  version = "0.104.0";
 
   serverSource_x64.url = "https://github.com/TriliumNext/Trilium/releases/download/v${version}/TriliumNotes-Server-v${version}-linux-x64.tar.xz";
-  serverSource_x64.hash = "sha256-2/Skk4I8CwttF5SEs8gPW6KyNxcrYcTuQBQ7irNL1lw=";
+  serverSource_x64.hash = "sha256-lrZL0c9ijvjYUQlN6BN1BhHR2KacFG6h6KzIlkIKLGk=";
   serverSource_arm64.url = "https://github.com/TriliumNext/Trilium/releases/download/v${version}/TriliumNotes-Server-v${version}-linux-arm64.tar.xz";
-  serverSource_arm64.hash = "sha256-MQlYci2Z45qSYGxgSTWN3P017GImUqkv24DBn8usDm8=";
+  serverSource_arm64.hash = "sha256-EgqYA7IBSt9tZ12MgktIKhJ9/ww/prTCE5Z7enMUk7Q=";
 
   serverSource =
     if stdenv.hostPlatform.isx86_64 then
@@ -55,7 +55,7 @@ stdenv.mkDerivation {
 
   meta = {
     description = "Hierarchical note taking application with focus on building large personal knowledge bases";
-    homepage = "https://github.com/TriliumNext/Notes";
+    homepage = "https://github.com/TriliumNext/Trilium";
     license = lib.licenses.agpl3Plus;
     sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
     platforms = [

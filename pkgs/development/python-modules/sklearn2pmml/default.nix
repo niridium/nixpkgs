@@ -33,14 +33,14 @@ let
 in
 buildPythonPackage (finalAttrs: {
   pname = "sklearn2pmml";
-  version = "0.129.2";
+  version = "0.131.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "jpmml";
     repo = "sklearn2pmml";
     tag = finalAttrs.version;
-    hash = "sha256-xntm+AUwylJuMhTAYi6o2tIxlzzeo8lkwtSvgeuQpQU=";
+    hash = "sha256-FHk5vsXksVJs873VJqfX85nkRkojYBhaivbPIv1FReU=";
   };
 
   postPatch = ''
@@ -66,7 +66,7 @@ buildPythonPackage (finalAttrs: {
     statsmodels
   ];
 
-  pytestFlagsArray = [
+  enabledTestPaths = [
     # Only run the main test suite; subpackage tests require
     # sklearn-pandas which is not available in nixpkgs
     "sklearn2pmml/tests"

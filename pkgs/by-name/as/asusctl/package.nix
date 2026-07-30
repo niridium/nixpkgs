@@ -1,7 +1,7 @@
 {
   lib,
   rustPlatform,
-  fetchFromGitLab,
+  fetchFromGitHub,
   systemd,
   coreutils,
   gnugrep,
@@ -18,16 +18,16 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "asusctl";
-  version = "6.3.6";
+  version = "6.3.8";
 
-  src = fetchFromGitLab {
-    owner = "asus-linux";
+  src = fetchFromGitHub {
+    owner = "OpenGamingCollective";
     repo = "asusctl";
     tag = finalAttrs.version;
-    hash = "sha256-HkqVNhxbz/JBVmGBeYvdWRttvAcvP05iSfp2VZPR+x8=";
+    hash = "sha256-DXpuKZmjYKiQp8ULH39EYtY75muZ77YzwYmE/yF1wEY=";
   };
 
-  cargoHash = "sha256-PTktA8e5pR+vl0trH0MhBXhcsxU+d/WtBMSKeSztgSY=";
+  cargoHash = "sha256-nZDpKuL+7IIuV5q/W4qWHa7C/HEoX5YaerUMcDQQVtg=";
 
   postPatch = ''
     files="
@@ -103,7 +103,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   meta = {
     description = "Control daemon, CLI tools, and a collection of crates for interacting with ASUS ROG laptops";
-    homepage = "https://gitlab.com/asus-linux/asusctl";
+    homepage = "https://github.com/OpenGamingCollective/asusctl";
     license = lib.licenses.mpl20;
     platforms = [ "x86_64-linux" ];
     maintainers = with lib.maintainers; [

@@ -13,6 +13,7 @@ aws-c-common.section.md
 bmake.section.md
 breakpoint.section.md
 cernlib.section.md
+check-phase-thread-limit-hook.section.md
 cmake.section.md
 desktop-file-utils.section.md
 gdk-pixbuf.section.md
@@ -20,6 +21,7 @@ ghc.section.md
 gnome.section.md
 haredo.section.md
 installShellFiles.section.md
+installFonts.section.md
 julec.section.md
 just.section.md
 libglycin.section.md
@@ -36,6 +38,7 @@ npm-install-hook.section.md
 patch-rc-path-hooks.section.md
 perl.section.md
 pkg-config.section.md
+pnpm.section.md
 postgresql-test-hook.section.md
 premake.section.md
 python.section.md
@@ -47,6 +50,7 @@ unzip.section.md
 validatePkgConfig.section.md
 versionCheckHook.section.md
 waf.section.md
+writable-tmpdir-as-home-hook.section.md
 zig.section.md
 xcbuild.section.md
 xfce4-dev-tools.section.md

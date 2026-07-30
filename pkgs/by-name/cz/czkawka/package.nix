@@ -15,6 +15,7 @@
   libxi,
   libxkbcommon,
   libxrandr,
+  lld,
   pango,
   pkg-config,
   rustPlatform,
@@ -29,21 +30,24 @@
 let
   self = rustPlatform.buildRustPackage {
     pname = "czkawka";
-    version = "11.0.1";
+    version = "12.0.0";
 
     src = fetchFromGitHub {
       owner = "qarmin";
       repo = "czkawka";
       tag = self.version;
-      hash = "sha256-ke6N3vuKPGolfh6XpAg3/9dtwd09eX53fN2klUwwNwQ=";
+      hash = "sha256-KbGcaeQcpf2IL3I2PmsBpg8n+IfSuJl5tkLOxNCtYaQ=";
     };
 
-    cargoHash = "sha256-fx2ZH4I2WYCdMgNoKQuBBEJrPjmgTRPeVM2L+TWYn54=";
+    cargoHash = "sha256-+1K2a64XcbBePiQ/LeaSVCU/Ih0Fr4EjzNU5xpzfz2Q=";
 
     nativeBuildInputs = [
       gobject-introspection
       pkg-config
       wrapGAppsHook4
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      lld # ld crashes
     ];
 
     buildInputs = [
@@ -75,10 +79,16 @@ let
 
     # Desktop items, icons and metainfo are not installed automatically
     postInstall = ''
+      # Czkawka
       install -Dm444 -t $out/share/applications data/com.github.qarmin.czkawka.desktop
       install -Dm444 -t $out/share/icons/hicolor/scalable/apps data/icons/com.github.qarmin.czkawka.svg
       install -Dm444 -t $out/share/icons/hicolor/scalable/apps data/icons/com.github.qarmin.czkawka-symbolic.svg
       install -Dm444 -t $out/share/metainfo data/com.github.qarmin.czkawka.metainfo.xml
+
+      # Krokiet
+      install -Dm444 -t $out/share/applications data/io.github.qarmin.krokiet.desktop
+      install -Dm444 -t $out/share/icons/hicolor/scalable/apps data/icons/io.github.qarmin.krokiet.svg
+      install -Dm444 -t $out/share/metainfo data/io.github.qarmin.krokiet.metainfo.xml
     '';
     dontWrapGApps = true;
 
@@ -120,7 +130,7 @@ let
       homepage = "https://github.com/qarmin/czkawka";
       description = "Simple, fast and easy to use app to remove unnecessary files from your computer";
       changelog = "https://github.com/qarmin/czkawka/raw/${self.version}/Changelog.md";
-      license = with lib.licenses; [ mit ];
+      license = lib.licenses.mit;
       mainProgram = "czkawka_gui";
       maintainers = with lib.maintainers; [
         yanganto

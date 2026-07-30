@@ -10,20 +10,18 @@
   writableTmpDirAsHomeHook,
   versionCheckHook,
 
-  ## gpu-stats
+  ## wandb-xpu
   rustPlatform,
 
   ## wandb
   buildPythonPackage,
-  replaceVars,
-  fetchpatch,
 
   # build-system
   hatchling,
 
   # dependencies
   click,
-  gitpython,
+  packaging,
   platformdirs,
   protobuf,
   pydantic,
@@ -31,19 +29,18 @@
   requests,
   sentry-sdk,
   setproctitle,
-  setuptools,
   pythonOlder,
   typing-extensions,
 
   # tests
-  pytestCheckHook,
-  azure-core,
   azure-containerregistry,
+  azure-core,
   azure-identity,
   azure-storage-blob,
   bokeh,
   boto3,
   cloudpickle,
+  cwsandbox,
   flask,
   google-cloud-artifact-registry,
   google-cloud-compute,
@@ -52,7 +49,9 @@
   jsonschema,
   kubernetes,
   kubernetes-asyncio,
+  looptime,
   matplotlib,
+  moto,
   moviepy,
   pandas,
   parameterized,
@@ -65,6 +64,7 @@
   pytest-mock,
   pytest-timeout,
   pytest-xdist,
+  pytestCheckHook,
   rdkit,
   responses,
   scikit-learn,
@@ -76,26 +76,29 @@
 }:
 
 let
-  version = "0.25.1";
+  version = "0.28.1";
   src = fetchFromGitHub {
     owner = "wandb";
     repo = "wandb";
     tag = "v${version}";
-    hash = "sha256-jrHj+dNW/eUMcqT5XJbiAz1tlviVBhdtroJ8dA7GBr4=";
+    hash = "sha256-yXsSHyPOh3QXRRkTL4Rj8lLuFjp1LIKfPiacy4+obAk=";
   };
 
-  gpu-stats = rustPlatform.buildRustPackage {
-    pname = "gpu-stats";
-    version = "0.6.0";
+  wandb-xpu = rustPlatform.buildRustPackage {
+    pname = "wandb-xpu";
+    version = "0.7.0";
     inherit src;
 
-    sourceRoot = "${src.name}/gpu_stats";
+    sourceRoot = "${src.name}/xpu";
 
-    cargoHash = "sha256-yzvXJYkQTNOScOI3yfVBH6IGZzcFduuXqW3pI5hEZGw=";
+    cargoHash = "sha256-vB0LZjfnf//U1BXCzvaQBjlXLlGx/4g+emSZWcS+oGU=";
 
     checkFlags = [
       # fails in sandbox
       "--skip=gpu_amd::tests::test_gpu_amd_new"
+
+      # tries to download libtpu wheel from PyPI
+      "--skip=tpu_libtpu::tests::test_libtpu_sdk"
     ];
 
     nativeInstallCheckInputs = [
@@ -104,8 +107,29 @@ let
     doInstallCheck = true;
 
     meta = {
-      mainProgram = "gpu_stats";
+      mainProgram = "wandb-xpu";
     };
+  };
+
+  inherit (stdenv.hostPlatform.extensions) sharedLibrary;
+  libRustParquet = "librust_parquet_ffi${sharedLibrary}";
+
+  parquet-rust-wrapper = rustPlatform.buildRustPackage {
+    pname = "arrow-rs-wrapper";
+    version = "0.1.0";
+    inherit src;
+
+    sourceRoot = "${src.name}/parquet-rust-wrapper";
+
+    cargoHash = "sha256-BkeSRbZoehYGHj15KcInugRBvOLXJlh1NqTHhRnNOK8=";
+
+    # The original build script renames the library:
+    # https://github.com/wandb/wandb/blob/v0.26.0/parquet-rust-wrapper/build.sh#L37-L68
+    postInstall = ''
+      mv $out/lib/libarrow_rs_wrapper${sharedLibrary} $out/lib/${libRustParquet}
+    '';
+
+    __darwinAllowLocalNetworking = true;
   };
 
   wandb-core = buildGoModule {
@@ -114,13 +138,28 @@ let
 
     sourceRoot = "${src.name}/core";
 
-    # hardcode the `gpu_stats` binary path.
-    postPatch = ''
-      substituteInPlace internal/monitor/gpuresourcemanager.go \
-        --replace-fail \
-          'cmdPath, err := getGPUCollectorCmdPath()' \
-          'cmdPath, err := "${lib.getExe gpu-stats}", error(nil)'
-    '';
+    postPatch =
+      # Relax the Go toolchain requirement; nixpkgs ships 1.26.2.
+      ''
+        substituteInPlace go.mod \
+          --replace-fail \
+            "go 1.26.4" \
+            "go 1.26.2"
+      ''
+      # hardcode the `wandb-xpu` binary path.
+      + ''
+        substituteInPlace internal/monitor/xpuresourcemanager.go \
+          --replace-fail \
+            'cmdPath, err := getXPUCmdPath()' \
+            'cmdPath, err := "${lib.getExe wandb-xpu}", error(nil)'
+      ''
+      # hardcode the `parquet-rust-wrapper` library path.
+      + ''
+        substituteInPlace internal/runhistoryreader/parquet/ffi/rustarrowreader.go \
+          --replace-fail \
+            "${libRustParquet}" \
+            "${lib.getLib parquet-rust-wrapper}/lib/${libRustParquet}"
+      '';
 
     vendorHash = null;
 
@@ -158,25 +197,12 @@ buildPythonPackage (finalAttrs: {
 
   inherit src version;
 
-  patches = [
-    # Replace git paths
-    (replaceVars ./hardcode-git-path.patch {
-      git = lib.getExe gitMinimal;
-    })
-
-    # https://github.com/wandb/wandb/pull/11552
-    (fetchpatch {
-      name = "add-protobuf-7-compatibility";
-      url = "https://github.com/wandb/wandb/commit/4ef09f3dd1ee408eb9194ea8b7feea2b1128839c.patch";
-      hash = "sha256-6weMJI51cWXz2mCxOGWYGrh0QCxtMGqz6HAVRF5b1xs=";
-    })
-  ];
-
   postPatch =
-    # Prevent hatch from building wandb-core
+    # Prevent hatch from building wandb-core and arrow-rs-wrapper
     ''
       substituteInPlace hatch_build.py \
-        --replace-fail "artifacts.extend(self._build_wandb_core())" ""
+        --replace-fail "artifacts.extend(self._build_wandb_core())" "" \
+        --replace-fail "artifacts.extend(self._build_arrow_rs_wrapper())" ""
     ''
     # Hard-code the path to the `wandb-core` binary in the code.
     + ''
@@ -184,14 +210,21 @@ buildPythonPackage (finalAttrs: {
         --replace-fail \
           'bin_path = pathlib.Path(__file__).parent / "bin" / "wandb-core"' \
           'bin_path = pathlib.Path("${lib.getExe wandb-core}")'
+    ''
+    # Hard-code the path to git in the python code
+    + ''
+      substituteInPlace wandb/cli/cli.py \
+        --replace-fail \
+          '["git", "apply",' \
+          '["${lib.getExe gitMinimal}", "apply",' \
     '';
 
   env = {
-    # Prevent the install script to try building and embedding the `gpu_stats` and `wandb-core`
-    # binaries in the wheel.
-    # Their path have been patched accordingly in the `wandb-core` and `wanbd` source codes.
+    # Prevent the install script from trying to build and embed native binaries in the wheel.
+    # Their paths have been patched accordingly in the `wandb-core` and `wandb` source codes.
     # https://github.com/wandb/wandb/blob/v0.18.5/hatch_build.py#L37-L47
-    WANDB_BUILD_SKIP_GPU_STATS = true;
+    WANDB_BUILD_SKIP_WANDB_XPU = true;
+    WANDB_BUILD_SKIP_ORJSON = true;
     WANDB_BUILD_UNIVERSAL = true;
   };
 
@@ -199,14 +232,9 @@ buildPythonPackage (finalAttrs: {
     hatchling
   ];
 
-  # Protobuf 7 is not compatible with the current version of wandb
-  pythonRelaxDeps = [
-    "protobuf"
-  ];
-
   dependencies = [
     click
-    gitpython
+    packaging
     platformdirs
     protobuf
     pydantic
@@ -214,8 +242,6 @@ buildPythonPackage (finalAttrs: {
     requests
     sentry-sdk
     setproctitle
-    # setuptools is necessary since pkg_resources is required at runtime.
-    setuptools
   ]
   ++ lib.optionals (pythonOlder "3.12") [
     typing-extensions
@@ -224,15 +250,16 @@ buildPythonPackage (finalAttrs: {
   __darwinAllowLocalNetworking = true;
 
   nativeCheckInputs = [
-    pytestCheckHook
-    azure-core
     azure-containerregistry
+    azure-core
     azure-identity
     azure-storage-blob
     bokeh
     boto3
     cloudpickle
+    cwsandbox
     flask
+    gitMinimal
     google-cloud-artifact-registry
     google-cloud-compute
     google-cloud-storage
@@ -240,7 +267,9 @@ buildPythonPackage (finalAttrs: {
     jsonschema
     kubernetes
     kubernetes-asyncio
+    looptime
     matplotlib
+    moto
     moviepy
     pandas
     parameterized
@@ -253,11 +282,13 @@ buildPythonPackage (finalAttrs: {
     pytest-mock
     pytest-timeout
     pytest-xdist
+    pytestCheckHook
     rdkit
     responses
     scikit-learn
     soundfile
     tenacity
+    versionCheckHook
     torch
     torchvision
     tqdm
@@ -281,6 +312,9 @@ buildPythonPackage (finalAttrs: {
 
     # PermissionError: unable to write to .cache/wandb/artifacts
     "tests/unit_tests/test_artifacts/test_wandb_artifacts.py"
+
+    # Requires kfp which is not packaged
+    "tests/unit_tests/test_kfp.py"
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     # Breaks in sandbox: "Timed out waiting for wandb service to start"
@@ -400,12 +434,21 @@ buildPythonPackage (finalAttrs: {
     "test_watch_parameters_torch_jit"
   ];
 
+  passthru = {
+    inherit
+      wandb-core
+      wandb-xpu
+      parquet-rust-wrapper
+      ;
+  };
+
   meta = {
     description = "CLI and library for interacting with the Weights and Biases API";
     homepage = "https://github.com/wandb/wandb";
-    changelog = "https://github.com/wandb/wandb/raw/${finalAttrs.version}/CHANGELOG.md";
+    changelog = "https://github.com/wandb/wandb/blob/${finalAttrs.src.tag}/CHANGELOG.md";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ samuela ];
-    broken = gpu-stats.meta.broken || wandb-core.meta.broken;
+    mainProgram = "wandb";
+    broken = wandb-xpu.meta.broken || wandb-core.meta.broken;
   };
 })

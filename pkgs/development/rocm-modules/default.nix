@@ -87,6 +87,7 @@ let
       rocprofiler-register = self.callPackage ./rocprofiler-register {
         inherit (llvm) clang;
       };
+      rocprofiler-sdk = self.callPackage ./rocprofiler-sdk { };
 
       rocprof-compute-viewer = self.callPackage ./rocprof-compute-viewer { };
 
@@ -115,6 +116,8 @@ let
       mscclpp = self.callPackage ./mscclpp { };
 
       rccl = self.callPackage ./rccl { };
+
+      rocshmem = self.callPackage ./rocshmem { };
 
       hipcub = self.callPackage ./hipcub { };
 
@@ -153,6 +156,8 @@ let
       hipblas = self.callPackage ./hipblas { };
 
       hipblaslt = self.callPackage ./hipblaslt { };
+
+      hipsparselt = self.callPackage ./hipsparselt { };
 
       # hipTensor - Only supports GFX9
 

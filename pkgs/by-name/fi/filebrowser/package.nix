@@ -1,39 +1,44 @@
 {
+  stdenv,
   lib,
   fetchFromGitHub,
   buildGoModule,
-  buildNpmPackage,
+  stdenvNoCC,
   fetchPnpmDeps,
   pnpmConfigHook,
-  nodejs_24,
+  pnpmBuildHook,
+  nodejs-slim,
   pnpm_10,
+  installShellFiles,
   nix-update-script,
   nixosTests,
 }:
 
 let
-  version = "2.62.2";
+  version = "2.63.20";
 
   src = fetchFromGitHub {
     owner = "filebrowser";
     repo = "filebrowser";
-    rev = "v${version}";
-    hash = "sha256-yjy3RMgC38oktxMpvw78w5VVCUE/1+Lv37G/RJaQte0=";
+    tag = "v${version}";
+    hash = "sha256-TyCd3AAfc/qMSG1mYZ9OF5kiHTrSRuJ8EzBM5fNzqnA=";
   };
 
-  frontend = buildNpmPackage rec {
+  frontend = stdenvNoCC.mkDerivation (finalAttrs: {
     pname = "filebrowser-frontend";
     inherit version src;
 
     sourceRoot = "${src.name}/frontend";
 
-    nativeBuildInputs = [ pnpm_10 ];
-    npmConfigHook = pnpmConfigHook;
-    npmDeps = pnpmDeps;
-    nodejs = nodejs_24;
+    nativeBuildInputs = [
+      nodejs-slim
+      pnpmConfigHook
+      pnpmBuildHook
+      pnpm_10
+    ];
 
     pnpmDeps = fetchPnpmDeps {
-      inherit
+      inherit (finalAttrs)
         pname
         version
         src
@@ -41,7 +46,7 @@ let
         ;
       fetcherVersion = 3;
       pnpm = pnpm_10;
-      hash = "sha256-0n2HxluqIcCzo1QA5D/YRCk5+mbTntLA8PFxZAC3YA8=";
+      hash = "sha256-UwTA7Eogp2GrvmXDbdfGBTJS3DuOTJ42e6fHlQxSHoA=";
     };
 
     installPhase = ''
@@ -52,14 +57,23 @@ let
 
       runHook postInstall
     '';
-  };
+  });
 
 in
 buildGoModule {
   pname = "filebrowser";
   inherit version src;
 
-  vendorHash = "sha256-YM/aIx1gDhFAKNNZmXvG3AVd4xSNC8AHIya4Gyeq9/Y=";
+  vendorHash = "sha256-BXw+fURCh1qNlwWo49aXIpSM339bV3Gwn9Ov8HLEVF0=";
+
+  nativeBuildInputs = [ installShellFiles ];
+
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+    installShellCompletion --cmd filebrowser \
+      --bash <($out/bin/filebrowser completion bash) \
+      --fish <($out/bin/filebrowser completion fish) \
+      --zsh  <($out/bin/filebrowser completion zsh )
+  '';
 
   excludedPackages = [ "tools" ];
 
@@ -87,6 +101,7 @@ buildGoModule {
   meta = {
     description = "Web application for managing files and directories";
     homepage = "https://filebrowser.org";
+    changelog = "https://github.com/filebrowser/filebrowser/releases/${src.tag}";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ oakenshield ];
     mainProgram = "filebrowser";

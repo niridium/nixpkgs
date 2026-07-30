@@ -23,13 +23,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "davmail";
-  version = "6.5.1";
+  version = "6.8.1";
 
   src = fetchFromGitHub {
     owner = "mguessan";
     repo = "davmail";
     tag = finalAttrs.version;
-    hash = "sha256-D/MEWq696PFXlarQZdSrTS9VFODg7u7yhUsbCwHV9qs=";
+    hash = "sha256-kIDAMVenUzc7tIC49yzc1MzqNa9B7nNlX1bzwpG8Vp0=";
   };
 
   buildPhase = ''

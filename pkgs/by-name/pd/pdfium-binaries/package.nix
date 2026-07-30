@@ -8,7 +8,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "pdfium-binaries";
-  version = "7734";
+  version = "7749";
 
   src =
     let
@@ -18,7 +18,6 @@ stdenv.mkDerivation (finalAttrs: {
       system = selectSystem {
         x86_64-linux = "linux-x64";
         aarch64-linux = "linux-arm64";
-        x86_64-darwin = "mac-x64";
         aarch64-darwin = "mac-arm64";
       };
     in
@@ -27,17 +26,15 @@ stdenv.mkDerivation (finalAttrs: {
       hash =
         if withV8 then
           selectSystem {
-            x86_64-linux = "sha256-ovbxiOwsmBUddbuTreVvhJeHMYd4dKu+rACDELsRC90=";
-            aarch64-linux = "sha256-wMddHbzxCs21dzZhLjpLEviplFOzHukrRRbCPMOTrDs=";
-            x86_64-darwin = "sha256-+UsFsft9WKd0LrDKbdxuKlHxNsfhzOIWvm8Br0MlNgc=";
-            aarch64-darwin = "sha256-MDE27+uIhqkSe76xtx/sHt++OQtXXAueq10KrwYVJ8Q=";
+            x86_64-linux = "sha256-I3JTNnqXpDHwl+sOS/AlPj4znG2OFIqRxtJNhXD+w6I=";
+            aarch64-linux = "sha256-PBkwxcjsqeEElNC+V74h4P1e508IB/zXjGoQuwK6Krk=";
+            aarch64-darwin = "sha256-DpoPHGaFkjfOa3tXItYLeJpTLfRXOrjlN/+eyPEcgOQ=";
           }
         else
           selectSystem {
-            x86_64-linux = "sha256-us1UjIhdsRTSGJOkasLdMyIRKdHXKr21hY2+NOIKVH4=";
-            aarch64-linux = "sha256-wHZVPH/c+jsxcClWznox/wnlKlTyUeKqdQxujdD67XU=";
-            x86_64-darwin = "sha256-+Umu2SsuO9lJGngkBVyuAvg4wu9d/OCsSabQ7F4U55U=";
-            aarch64-darwin = "sha256-pHEK9QC2DMZoRnTGc6NfVjCxaZYmCsh3RqHdSCdZ0Cs=";
+            x86_64-linux = "sha256-0VaBPO4angdRqerquTjqizZWvGxrRP8k7DZXLw8Yqaw=";
+            aarch64-linux = "sha256-h7JJxmCg9GIaVMajNZb+AeClIeX8w9XWM2RYqGhPoUY=";
+            aarch64-darwin = "sha256-rJqrpCo+5bzqyUsRubGOsBZ8orV1dSuXfjADFJmxBOw=";
           };
       stripRoot = false;
     };
@@ -70,7 +67,6 @@ stdenv.mkDerivation (finalAttrs: {
       "aarch64-linux"
       "aarch64-darwin"
       "x86_64-linux"
-      "x86_64-darwin"
     ];
   };
 })

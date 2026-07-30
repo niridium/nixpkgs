@@ -8,16 +8,16 @@
 
 buildGoModule (finalAttrs: {
   pname = "zed";
-  version = "0.36.1";
+  version = "1.2.0";
 
   src = fetchFromGitHub {
     owner = "authzed";
     repo = "zed";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-42c2utcrUOhLwFS7AdsR2/6vtBLo7Vitx3i9k7pFs7o=";
+    hash = "sha256-wwD/PCnhCFzhq/Oe9+qU+w/ZlloZbezjOtBKMQkxI9E=";
   };
 
-  vendorHash = "sha256-WgTOwXdH1jgK7Un8UA/PX9iYt0VyAGMdpxYVXM6KyWE=";
+  vendorHash = "sha256-swlwje4XCzhRojPOaW28MDEaZQIvXGUoH7qjyz5+tUo=";
 
   ldflags = [ "-X 'github.com/jzelinskie/cobrautil/v2.Version=${finalAttrs.src.tag}'" ];
 

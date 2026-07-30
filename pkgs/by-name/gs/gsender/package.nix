@@ -5,12 +5,12 @@
 }:
 
 let
-  version = "1.5.7";
+  version = "1.6.3";
   pname = "gsender";
 
   src = fetchurl {
     url = "https://github.com/Sienci-Labs/gsender/releases/download/v${version}/gSender-${version}-Linux-Intel-64Bit.AppImage";
-    hash = "sha256-J+GpDJ1PU07sxAmLON3GLE6RnsrSGPYfhsdESsFU/jQ=";
+    hash = "sha256-xWsRSzJm5aA13qCBI2MRzauvPqoOBtxqtGb3gLAa3sI=";
   };
 
   appimageContents = appimageTools.extractType2 { inherit pname version src; };

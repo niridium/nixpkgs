@@ -1,7 +1,7 @@
 {
   bintools,
   buildPackages,
-  flutter,
+  callPackage,
   cacert,
   curlMinimal,
   dart-bin,
@@ -29,7 +29,9 @@
 }:
 
 let
-  version = "3.11.4";
+  version = "3.12.2";
+
+  tools = callPackage ../../flutter/engine/tools.nix { inherit (stdenv) hostPlatform buildPlatform; };
 
   getArchInfo =
     platform:
@@ -59,7 +61,7 @@ let
     nativeBuildInputs = [
       cacert
       curlMinimal
-      flutter.scope.cipd
+      tools.cipd
       gitMinimal
       pax-utils
       python3
@@ -78,7 +80,7 @@ let
 
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-y2F+wB0M5dq6koxGpCs9BExGU7p8tFOIiRqfdf8ip+8=";
+    outputHash = "sha256-J+qlj0sSWYqqvMiTP6hZYD97ho2VsrqRynCaiSRQV6Q=";
 
     buildCommand = ''
       mkdir source
@@ -92,8 +94,8 @@ let
         target_cpu = ['x64', 'arm64', 'riscv64']
         target_cpu_only = True
       ''} .gclient
-      export PATH=${python3}/bin:$PATH:${flutter.scope.depot_tools}
-      python3 ${flutter.scope.depot_tools}/gclient.py sync --no-history --nohooks --noprehooks
+      export PATH=${python3}/bin:$PATH:${tools.depot_tools}
+      python3 ${tools.depot_tools}/gclient.py sync --no-history --nohooks --noprehooks
       find sdk -name ".versions" -type d -exec rm -rf {} +
       rm --recursive --force sdk/buildtools/sysroot
       rm --recursive --force sdk/buildtools/linux-arm64
@@ -149,7 +151,7 @@ dart-bin.overrideAttrs (oldAttrs: {
   ];
 
   postPatch = ''
-    sed --in-place 's/"-fsanitize=memory"//g' build/config/compiler/BUILD.gn
+    sed --in-place '/"-fsanitize=memory"/d' build/config/compiler/BUILD.gn
     patchShebangs runtime/tools/
     sed --in-place 's/ldflags = pkgresult\[4\]/ldflags = []/' build/config/linux/pkg_config.gni
     cp ${

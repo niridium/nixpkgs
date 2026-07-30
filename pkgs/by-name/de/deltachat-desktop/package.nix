@@ -1,14 +1,15 @@
 {
   lib,
   copyDesktopItems,
-  electron_41,
+  electron_42,
   fetchFromGitHub,
   deltachat-rpc-server,
+  deltachat-tauri,
   makeDesktopItem,
   makeWrapper,
   nodejs,
   pkg-config,
-  pnpm_9,
+  pnpm_10,
   fetchPnpmDeps,
   pnpmConfigHook,
   python3,
@@ -21,38 +22,41 @@
 
 let
   deltachat-rpc-server' = deltachat-rpc-server.overrideAttrs rec {
-    version = "2.48.0";
+    version = "2.57.0";
     src = fetchFromGitHub {
       owner = "chatmail";
       repo = "core";
       tag = "v${version}";
-      hash = "sha256-9qrxzAoBdCzDaMWZnCPxKy9bISd19aI4U1kRcK85Mzg=";
+      hash = "sha256-MZhb3w4khWjWGEA9XvXgHjYiY9hQ5jCBWRwu6yMuaho=";
     };
     cargoDeps = rustPlatform.fetchCargoVendor {
       pname = "chatmail-core";
       inherit version src;
-      hash = "sha256-UcQoY2NvnvWmGjHn1xwi0deyPZjtnbfQJJo32K7TX38=";
+      hash = "sha256-gRtNhrKue2cMhq3J/jFQihJTpa6k1IJeIJ9C5hAbiOM=";
     };
   };
-  electron = electron_41;
+  electron = electron_42;
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "deltachat-desktop";
-  version = "2.48.0";
+  version = "2.57.0";
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "deltachat";
     repo = "deltachat-desktop";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-7LCaZOI9fBzVMyT0RqgGykDvN0eSTz2h6fRXK2kyRDk=";
+    hash = "sha256-HQP8O2c2xSJDY4PEicyIW8md5ux0HExjiRp8uoPhIlo=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
-    pnpm = pnpm_9;
-    fetcherVersion = 2;
-    hash = "sha256-1R8vCGQlT3pvybrcPc2SKbmezprgvrIt0J+BsZHPJ7c=";
+    pnpm = pnpm_10;
+    fetcherVersion = 4;
+    hash = "sha256-ATfjQbCZDvTWjq3iUTTcKkRm9bbFFIJ2Dm7p3IyoIxg=";
   };
+
+  strictDeps = true;
 
   nativeBuildInputs = [
     yq
@@ -60,7 +64,7 @@ stdenv.mkDerivation (finalAttrs: {
     nodejs
     pkg-config
     pnpmConfigHook
-    pnpm_9
+    pnpm_10
     python3
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
@@ -146,6 +150,7 @@ stdenv.mkDerivation (finalAttrs: {
     version = testers.testVersion {
       package = deltachat-desktop;
     };
+    inherit deltachat-tauri;
   };
 
   meta = {

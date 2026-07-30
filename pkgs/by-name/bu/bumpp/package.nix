@@ -5,26 +5,30 @@
   nodejs,
   fetchPnpmDeps,
   pnpmConfigHook,
-  pnpm,
+  pnpm_10,
   npmHooks,
   versionCheckHook,
   nix-update-script,
 }:
+let
+  pnpm = pnpm_10;
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "bumpp";
-  version = "11.0.1";
+  version = "12.0.0";
 
   src = fetchFromGitHub {
     owner = "antfu-collective";
     repo = "bumpp";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-f64kQn5Kk3jIMOCK1CCyuUMAdcSg9UkhCqlvBW+Dubo=";
+    hash = "sha256-9o3eUZ4cCusvV+IwQbLqbEI4NhTKkcwgqv4Mqe/VxZ4=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
-    fetcherVersion = 2;
-    hash = "sha256-rI0DhnncVWd4Wp5pvTnL8IerXbFDwJzkhC4uIe6WJto=";
+    inherit pnpm;
+    fetcherVersion = 3;
+    hash = "sha256-Em3HvH5nCiyxgaPQvenqAnOraYnvQNxLVdHQd1lz3+o=";
   };
 
   nativeBuildInputs = [

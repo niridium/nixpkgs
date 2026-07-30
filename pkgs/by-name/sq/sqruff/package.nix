@@ -8,16 +8,16 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "sqruff";
-  version = "0.37.3";
+  version = "0.39.0";
 
   src = fetchFromGitHub {
     owner = "quarylabs";
     repo = "sqruff";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-cqPbDMZICXMO4qZ6FEy07uy92mUD53VR6yKG+oitzcg=";
+    hash = "sha256-1ynG6A5sGHnCfAfw6MjSTghLPmicRvWPFWnL2Gtns7Y=";
   };
 
-  cargoHash = "sha256-L7u544Sapu0W2UnQhER820EY2LfJvOHzy7bIMZUOQiQ=";
+  cargoHash = "sha256-HAeF831rPODaT5nzzq+Li8xEmT78IJiRppaKUSlPXXg=";
 
   # Disable the `python` feature which doesn't work on Nix yet
   buildNoDefaultFeatures = true;
@@ -32,6 +32,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
       crates/cli/tests/fix_parse_errors.rs \
       crates/cli/tests/fix_return_code.rs \
       crates/cli/tests/ignore_data_directory.rs \
+      crates/cli/tests/none_format.rs \
       crates/cli/tests/verbose_logging_ignore.rs \
       crates/cli/tests/ui_github.rs \
       crates/cli/tests/ui_json.rs \

@@ -12,26 +12,22 @@ vscode-utils.buildVscodeMarketplaceExtension {
       sources = {
         "x86_64-linux" = {
           arch = "linux-x64";
-          hash = "sha256-XeNdr1nWK4aYTBEgAu3hXotmrDJ31ocg+w4870TuEGA=";
-        };
-        "x86_64-darwin" = {
-          arch = "darwin-x64";
-          hash = "sha256-yC8fBgj8lHR3y7OWUshWYNpn6fgp2SeKLv9WXxhVP0A=";
+          hash = "sha256-7832RechlKoDV42/82+OKoNBo+wzfB8kpTzLX1sL5mY=";
         };
         "aarch64-linux" = {
           arch = "linux-arm64";
-          hash = "sha256-O/SoqC0pNnbNdXylAj0rlKyr7qaJNivw6xhecKFk7JU=";
+          hash = "sha256-P8GUuAMrt0OTAqti3dDY738QmzJapNMxBUaTJj0TN+U=";
         };
         "aarch64-darwin" = {
           arch = "darwin-arm64";
-          hash = "sha256-pwdTllSB4IXDoyFuo2XxZjkS8lnIjp7AwgggBkjv3Y0=";
+          hash = "sha256-3sSd5bDC2ECDpCQKS5QOO3GBMWfhOFe6uOIfeZyUhLA=";
         };
       };
     in
     {
       publisher = "kilocode";
       name = "Kilo-Code";
-      version = "7.1.22";
+      version = "7.4.16";
     }
     // sources.${stdenv.hostPlatform.system}
       or (throw "Unsupported system ${stdenv.hostPlatform.system}");
@@ -52,7 +48,6 @@ vscode-utils.buildVscodeMarketplaceExtension {
       "aarch64-linux"
       "aarch64-darwin"
       "x86_64-linux"
-      "x86_64-darwin"
     ];
     maintainers = with lib.maintainers; [ xiaoxiangmoe ];
   };

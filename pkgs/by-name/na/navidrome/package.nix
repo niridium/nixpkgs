@@ -16,41 +16,28 @@
   nix-update-script,
   ffmpegSupport ? true,
   versionCheckHook,
+  plugins ? [ ],
 }:
 
 buildGoModule (finalAttrs: {
   pname = "navidrome";
-  version = "0.61.1";
+  version = "0.63.2";
 
   src = fetchFromGitHub {
     owner = "navidrome";
     repo = "navidrome";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-BRMJCBQl38AqsCI2UYQ9X36U57pg9uuiHsx8sHpVBKE=";
+    hash = "sha256-s0Pd6yT9NX2VFSPbLPX6Zqon8Y3qyDPGCKvqHPxcZ88=";
   };
 
-  patches = [
-    # https://github.com/navidrome/navidrome/pull/5276 (waiting on release)
-    (fetchpatch {
-      name = "regenerate-package-lock-json";
-      url = "https://github.com/navidrome/navidrome/compare/v0.61.1...33a05ef662760fd9feb0a3ae43c7fe149eda610b.patch";
-      hash = "sha256-IQ0wJ7vsSaLjBZS/fKIApNM8UV8oj6L2taCQIPhHvwg=";
-    })
-  ];
-
-  vendorHash = "sha256-iVXJPP41rIpC6Tu1P/jWcePYCQ2Z9lEoTOrDLN26kTU=";
+  vendorHash = "sha256-lNjOVrlRD6ptDBpmfGYCN3Vkal9ACciOyS1RANzKYK4=";
 
   npmRoot = "ui";
 
   npmDeps = fetchNpmDeps {
-    inherit (finalAttrs) src patches;
-    # Remove after https://github.com/navidrome/navidrome/pull/5276 is released
-    # patches are applied after we run npmDeps without inheriting patches here
-    # so we have to get out of the sourceRoot to apply it then get back in to it
-    prePatch = "cd ..";
-    postPatch = "cd ui";
+    inherit (finalAttrs) src;
     sourceRoot = "${finalAttrs.src.name}/ui";
-    hash = "sha256-iXey2XmDwsTR1/bIrBLzm6uvVGzPgQFcDLUtNy8robI=";
+    hash = "sha256-uRF9cf6HZE0gyCvGTEZ520d2gMsxmccEYLJBgc47pMg=";
   };
 
   nativeBuildInputs = [
@@ -59,6 +46,8 @@ buildGoModule (finalAttrs: {
     npmHooks.npmConfigHook
     pkg-config
   ];
+
+  runtimeInputs = plugins;
 
   overrideModAttrs = oldAttrs: {
     nativeBuildInputs = lib.filter (drv: drv != npmHooks.npmConfigHook) oldAttrs.nativeBuildInputs;
@@ -91,6 +80,13 @@ buildGoModule (finalAttrs: {
     make buildjs
   '';
 
+  postInstall = ''
+    mkdir -p $out/share/plugins/
+    ${lib.concatMapStringsSep "\n" (plugin: ''
+      ln -s ${plugin}/share/${plugin.pname}.ndp $out/share/plugins/
+    '') plugins}
+  '';
+
   tags = [
     "netgo"
     "sqlite_fts5"
@@ -105,6 +101,7 @@ buildGoModule (finalAttrs: {
   '';
 
   passthru = {
+    inherit plugins;
     tests.navidrome = nixosTests.navidrome;
     updateScript = nix-update-script { };
   };

@@ -28,6 +28,7 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "protobuf";
   inherit version;
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "protocolbuffers";
@@ -53,7 +54,7 @@ stdenv.mkDerivation (finalAttrs: {
         hash = "sha256-rIP+Ft/SWVwh9Oy8y8GSUBgP6CtLCLvGmr6nOqmyHhY=";
       })
     ]
-    ++ lib.optionals (lib.versionAtLeast version "30") [
+    ++ lib.optionals ((lib.versionAtLeast version "30") && (lib.versionOlder version "35")) [
       # workaround nvcc bug in message_lite.h
       # https://github.com/protocolbuffers/protobuf/issues/21542
       # Caused by: https://github.com/protocolbuffers/protobuf/commit/8f7aab29b21afb89ea0d6e2efeafd17ca71486a9
@@ -64,6 +65,17 @@ stdenv.mkDerivation (finalAttrs: {
         url = "https://github.com/protocolbuffers/protobuf/commit/211f52431b9ec30d4d4a1c76aafd64bd78d93c43.patch";
         hash = "sha256-2/vc4anc+kH7otfLHfBtW8dRowPyObiXZn0+HtQktak=";
       })
+    ]
+    ++ lib.optionals ((lib.versionAtLeast version "33") && (lib.versionOlder version "35")) [
+      # Fix protoc plugins crashing on big-endian platforms
+      # https://github.com/protocolbuffers/protobuf/pull/25363
+      (fetchpatch {
+        url = "https://github.com/protocolbuffers/protobuf/commit/8282f0f8ecf8b847e5964a308e041ba3b049811c.patch";
+        hash = "sha256-4c/yLuAd29Cxrz6I9F2Lj02lW2bazIcGb+86uxZY7qA=";
+      })
+      # Fix packed enum decoding on big-endian platforms
+      # https://github.com/protocolbuffers/protobuf/pull/25683
+      ./fix-upb-packed-enum-be.patch
     ]
     ++ lib.optionals (lib.versionAtLeast version "34") [
       # upb linker-array fix for newer toolchains (notably GCC 15):
@@ -77,6 +89,14 @@ stdenv.mkDerivation (finalAttrs: {
     lib.optionalString (stdenv.hostPlatform.isDarwin && lib.versionOlder version "29") ''
       substituteInPlace src/google/protobuf/testing/googletest.cc \
         --replace-fail 'tmpnam(b)' '"'$TMPDIR'/foo"'
+    ''
+    # Adapt https://github.com/protocolbuffers/protobuf/pull/22412 for various
+    # older versions. sed -z spans newlines, so this can capture and replace
+    # the full multiline #if macro.
+    + lib.optionalString (lib.versionOlder version "32") ''
+      sed -zi 's/\(#if \w*(clang::musttail)\)[^\n]*\(\\\n[^\n]*\)*/'\
+      '\1 \&\& (defined(__aarch64__) || defined(__x86_64__) || defined(_M_X64))/' \
+        src/google/protobuf/port_def.inc
     ''
     # Keep the sentinel macro non-retained for GCC 15+ to match generated
     # extension objects in linker arrays and avoid section type conflicts.

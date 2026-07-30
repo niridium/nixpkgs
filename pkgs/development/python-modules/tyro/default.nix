@@ -25,14 +25,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "tyro";
-  version = "1.0.12";
+  version = "1.0.15";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "brentyi";
     repo = "tyro";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-e4LIJzZ7lIkvhqbOz/EGHgPo9ri1HNiMp0j+I1S0/J4=";
+    hash = "sha256-mnYVinyys21BjHRhwOLjc3n8mShH2+krEK0dK0VBWp4=";
   };
 
   build-system = [ hatchling ];
